@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+	<string-array name="brands">
+	    <item>SAMSUNG</item>
+		<item>WHIRLPOOL</item>
+		<item>BURGERKING</item>
+		<item>ASUS</item>
+		<item>COCACOLA</item>
+		<item>VOLVO</item>
+  </string-array>
+	<string-array name="nouns">
+		<item>TREE</item>
+		<item>REFRIDGERATOR</item>
+		<item>KEYBOARD</item>
+		<item>HOUSE</item>
+	</string-array>
+	<string-array name="movies">
+		<item>PULPFICTION</item>
+		<item>JURASSICPARK</item>
+	</string-array>
+
+	<string-array name="categories">
+		<item>brands</item>
+		<item>nouns</item>
+		<item>movies</item>
+	</string-array>
+
+
+
+</resources>
