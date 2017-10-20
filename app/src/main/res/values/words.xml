@@ -17,6 +17,9 @@
 	<string-array name="movies">
 		<item>PULPFICTION</item>
 		<item>JURASSICPARK</item>
+        <item>FULLMETALJACKET</item>
+        <item>SCHINDLERSLIST</item>
+        <item>STARWARS</item>
 	</string-array>
 
 	<string-array name="categories">

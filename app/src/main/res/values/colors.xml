@@ -4,7 +4,7 @@
     <color name="colorPrimaryDark">#303F9F</color>
     <color name="colorAccent">#FF4081</color>
     <color name="downLetter">#000000</color>
-    <color name="downBackground">#d1d3d6</color>
-    <color name="upLetter">#FFFFFF</color>
+    <color name="downBackground">#FFFF</color>
+    <color name="upLetter">#ffffff</color>
     <color name="upBackground">#2c2f33</color>
 </resources>

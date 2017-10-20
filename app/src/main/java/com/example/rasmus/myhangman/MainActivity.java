@@ -14,6 +14,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import java.util.ArrayList;
 import java.util.Random;
 
 public class MainActivity extends AppCompatActivity {
@@ -21,15 +22,15 @@ public class MainActivity extends AppCompatActivity {
     private String[] words;
     private String[] categories;
     private Random rand;
-    private String currWord;
-    private String currCategory;
+    private String randWord;
+    private String randCategory;
     private LinearLayout wordLayout;
     private TextView[] letterViews;
     private GridView letters;
     //body part images
     private ImageView[] bodyParts;
     //number of body parts
-    private int numParts=6;
+    private int numParts = 6;
     //current part - will increment when wrong answers are chosen
     private int currPart;
     //number of characters in current word
@@ -46,8 +47,8 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         rand = new Random();
-        currWord = "";
-        currCategory = "";
+        randWord = "";
+        randCategory = "";
 
         res = getResources();
         wordLayout = (LinearLayout) findViewById(R.id.word);
@@ -63,31 +64,63 @@ public class MainActivity extends AppCompatActivity {
         playRound();
     }
 
+    private String getRandWord() {
+
+        ArrayList<String> usedWords = new ArrayList();
+        ArrayList<String> usedCategories = new ArrayList<>();
+
+        categories = res.getStringArray(R.array.categories);
+
+        Boolean check = false;
+        while (!check) {
+            randCategory = categories[rand.nextInt(categories.length)];
+
+            if (!usedCategories.contains(randCategory)) {
+                usedCategories.add(randCategory);
+                check = true;
+            }
+        }
+
+        words = res.getStringArray(res.getIdentifier(randCategory, "array", getPackageName()));
+
+        check = false;
+        while (!check) {
+            randWord = words[rand.nextInt(words.length)];
+
+            if (!usedWords.contains(randWord)) {
+                usedWords.add(randWord);
+                check = true;
+            }
+
+        }
+        return randWord;
+
+    }
+
     private void playRound() {
 
-        //categories = res.getStringArray(R.array.categories);
-        //currCategory = categories[rand.nextInt(categories.length)];
-        words = res.getStringArray(R.array.brands);
-        currWord = words[rand.nextInt(words.length)];
         numCorr = 0;
+        currPart = 0;
+
+        String randWord = getRandWord();
 
         for (int p = 0; p < numParts; p++) {
             bodyParts[p].setVisibility(View.INVISIBLE);
         }
 
-        letterViews = new TextView[currWord.length()];
+        letterViews = new TextView[this.randWord.length()];
         wordLayout.removeAllViews();
-        for (int c = 0; c < currWord.length(); c++) {
+        for (int c = 0; c < this.randWord.length(); c++) {
             letterViews[c] = new TextView(this);
-            letterViews[c].setText("" + currWord.charAt(c));
+            letterViews[c].setText("" + this.randWord.charAt(c));
 
             letterViews[c].setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
             letterViews[c].setGravity(Gravity.CENTER);
-            letterViews[c].setTextColor(Color.WHITE);
+            letterViews[c].setTextColor(Color.parseColor("#FFFFFF"));
             letterViews[c].setBackgroundResource(R.drawable.letter_background);
             //add to layout
             wordLayout.addView(letterViews[c]);
-            ltrAdapt=new LetterAdapter(this);
+            ltrAdapt = new LetterAdapter(this);
             letters.setAdapter(ltrAdapt);
 
         }
@@ -95,14 +128,14 @@ public class MainActivity extends AppCompatActivity {
 
     public void letterTry(View view) {
         //user has pressed a letter to guess
-        String ltr=((TextView)view).getText().toString();
+        String ltr = ((TextView) view).getText().toString();
         char letterChar = ltr.charAt(0);
         view.setEnabled(false);
         view.setBackgroundResource(R.drawable.letter_tried);
 
         boolean correct = false;
-        for(int k = 0; k < currWord.length(); k++) {
-            if (currWord.charAt(k)==letterChar){
+        for (int k = 0; k < randWord.length(); k++) {
+            if (randWord.charAt(k) == letterChar) {
                 correct = true;
                 numCorr++;
                 letterViews[k].setTextColor(Color.BLACK);
@@ -111,7 +144,7 @@ public class MainActivity extends AppCompatActivity {
 
         if (correct) {
             //correct guess
-            if (numCorr == currWord.length()) {
+            if (numCorr == randWord.length()) {
                 //user has won
                 // Disable Buttons
                 disableBtns();
@@ -119,7 +152,7 @@ public class MainActivity extends AppCompatActivity {
                 // Display Alert Dialog
                 AlertDialog.Builder winBuild = new AlertDialog.Builder(this);
                 winBuild.setTitle("Yay, well done!");
-                winBuild.setMessage("You won!\n\nThe answer was:\n\n"+currWord);
+                winBuild.setMessage("You won!\n\nThe answer was:\n\n" + randWord);
                 winBuild.setPositiveButton("Play Again",
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int id) {
@@ -131,7 +164,8 @@ public class MainActivity extends AppCompatActivity {
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int id) {
                                 MainActivity.this.finish();
-                            }});
+                            }
+                        });
 
                 winBuild.show();
             }
@@ -146,18 +180,20 @@ public class MainActivity extends AppCompatActivity {
             // Display Alert Dialog
             AlertDialog.Builder loseBuild = new AlertDialog.Builder(this);
             loseBuild.setTitle("Oopsie");
-            loseBuild.setMessage("You lose!\n\nThe answer was:\n\n"+currWord);
+            loseBuild.setMessage("You lose!\n\nThe answer was:\n\n" + randWord);
             loseBuild.setPositiveButton("Play Again",
                     new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int id) {
                             MainActivity.this.playRound();
-                        }});
+                        }
+                    });
 
             loseBuild.setNegativeButton("Exit",
                     new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int id) {
                             MainActivity.this.finish();
-                        }});
+                        }
+                    });
 
             loseBuild.show();
 
