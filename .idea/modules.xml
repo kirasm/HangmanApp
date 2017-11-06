@@ -3,7 +3,7 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/HangmanApp.iml" filepath="$PROJECT_DIR$/HangmanApp.iml" />
-      <module fileurl="file://$PROJECT_DIR$/MyHangman.iml" filepath="$PROJECT_DIR$/MyHangman.iml" />
+      <module fileurl="file://C:\Users\Rasmus-Laptop\Desktop\Projects\HangmanApp\MyHangman.iml" filepath="C:\Users\Rasmus-Laptop\Desktop\Projects\HangmanApp\MyHangman.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
     </modules>
   </component>

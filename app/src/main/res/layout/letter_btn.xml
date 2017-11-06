@@ -2,10 +2,10 @@
 <Button xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="50dp"
     android:layout_height="40dp"
-    android:textColor="#FFFFFF"
-    android:textStyle="bold"
+    xmlns:tools="http://schemas.android.com/tools"
     android:background="@drawable/letter_init"
-    android:onClick="letterTry">
-    
+    android:textColor="#FFFFFF"
+    android:textStyle="bold">
+
 
 </Button>

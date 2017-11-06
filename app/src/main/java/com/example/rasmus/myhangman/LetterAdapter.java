@@ -10,8 +10,10 @@ import android.widget.Button;
 public class LetterAdapter extends BaseAdapter {
     private String[] letters;
     private LayoutInflater letterInf;
+    private GameFragment g;
 
-    public LetterAdapter(Context c) {
+    public LetterAdapter(Context c, GameFragment g) {
+        this.g = g;
         letters=new String[26];
         for (int i = 0; i < letters.length; i++) {
             letters[i] = "" + (char)(i+'A');
@@ -51,8 +53,14 @@ public class LetterAdapter extends BaseAdapter {
         }
         //set the text to this letter
         letterBtn.setText(letters[position]);
+        letterBtn.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                g.letterTry(v);
+            }
+        });
         return letterBtn;
 
     }
+
 
 }
