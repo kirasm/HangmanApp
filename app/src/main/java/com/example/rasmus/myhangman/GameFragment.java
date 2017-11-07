@@ -6,6 +6,7 @@ import android.content.DialogInterface;
 import android.content.res.Resources;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -16,6 +17,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Random;
 
 /**
@@ -39,6 +41,7 @@ public class GameFragment extends Fragment {
     private int currPart;
     private int numCorr;
     private int score;
+    private int tries;
     private LetterAdapter ltrAdapt;
     private Resources res;
     private View v;
@@ -51,14 +54,13 @@ public class GameFragment extends Fragment {
         this.container = container;
 
         rand = new Random();
-        randWord = "";
-        randCategory = "";
-        score = 0;
+        reset();
 
         res = v.getResources();
         wordLayout = (LinearLayout) v.findViewById(R.id.word);
         letters = (GridView) v.findViewById(R.id.letters);
         score_text = (TextView) v.findViewById(R.id.score_text);
+        category_word = (TextView) v.findViewById(R.id.category);
         bodyParts = new ImageView[numParts];
         bodyParts[0] = (ImageView) v.findViewById(R.id.mistake1);
         bodyParts[1] = (ImageView) v.findViewById(R.id.mistake2);
@@ -112,26 +114,28 @@ public class GameFragment extends Fragment {
         score_text.setText(String.valueOf(score));
         String randWord = getRandWord();
 
-        for (int p = 0; p < numParts; p++) {
-            bodyParts[p].setVisibility(View.INVISIBLE);
+        for (int i = 0; i < numParts; i++) {
+            bodyParts[i].setVisibility(View.INVISIBLE);
         }
-        category_word = (TextView) v.findViewById(R.id.category);
+
+
         category_word.setText(randCategory);
         letterViews = new TextView[randWord.length()];
         wordLayout.removeAllViews();
-        for (int c = 0; c < randWord.length(); c++) {
-            letterViews[c] = new TextView(container.getContext());
-            letterViews[c].setText("" + randWord.charAt(c));
-            letterViews[c].setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
-            letterViews[c].setGravity(Gravity.CENTER);
-            letterViews[c].setTextColor(Color.parseColor("#FFFFFF"));
-            letterViews[c].setBackgroundResource(R.drawable.letter_background);
+        for (int i = 0; i < randWord.length(); i++) {
+            letterViews[i] = new TextView(container.getContext());
+            letterViews[i].setText("" + randWord.charAt(i));
+            letterViews[i].setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+            letterViews[i].setGravity(Gravity.CENTER);
+            letterViews[i].setTextColor(Color.parseColor("#FFFFFF"));
+            letterViews[i].setBackgroundResource(R.drawable.blank_letter);
             //add to layout
-            wordLayout.addView(letterViews[c]);
-            ltrAdapt = new LetterAdapter(container.getContext(),this);
-            letters.setAdapter(ltrAdapt);
+            wordLayout.addView(letterViews[i]);
 
         }
+
+        ltrAdapt = new LetterAdapter(container.getContext(),this);
+        letters.setAdapter(ltrAdapt);
     }
 
     public void letterTry(View view) {
@@ -158,10 +162,10 @@ public class GameFragment extends Fragment {
                 disableBtns();
 
                 // Display Alert Dialog
-                AlertDialog.Builder winBuild = new AlertDialog.Builder(container.getContext());
-                winBuild.setTitle("Yay, well done!");
-                winBuild.setMessage("You won!\n\nThe answer was:\n\n" + randWord);
-                winBuild.setPositiveButton("Play Again",
+                AlertDialog.Builder popupWin = new AlertDialog.Builder(container.getContext());
+                popupWin.setTitle("There you go!");
+                popupWin.setMessage("You win!\n\nAnswer:\n\n" + randWord + "\n\nScore: " + score + "               " + "Tries left: " + tries);
+                popupWin.setPositiveButton("Next word",
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int id) {
                                 score = score + 10;
@@ -169,14 +173,14 @@ public class GameFragment extends Fragment {
                             }
                         });
 
-                winBuild.setNegativeButton("Exit",
+                popupWin.setNegativeButton("Exit",
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int id) {
                              //   finish();
                             }
                         });
 
-                winBuild.show();
+                popupWin.show();
             }
         } else if (currPart < numParts) {
             //some guesses left
@@ -185,27 +189,34 @@ public class GameFragment extends Fragment {
         } else {
             //user has lost
             disableBtns();
-
+            tries--;
             // Display Alert Dialog
-            AlertDialog.Builder loseBuild = new AlertDialog.Builder(container.getContext());
-            loseBuild.setTitle("Oopsie");
-            loseBuild.setMessage("You lose!\n\nThe answer was:\n\n" + randWord);
-            loseBuild.setPositiveButton("Play Again",
+            AlertDialog.Builder popupLose = new AlertDialog.Builder(container.getContext());
+            popupLose.setTitle("Not this time");
+            popupLose.setMessage("You lose!\n\nAnswer:\n\n" + randWord + "\n\nScore: " + score + "               " + "Tries left: " + tries);
+            popupLose.setPositiveButton("Try again",
                     new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int id) {
-                            score = 0;
-                            playRound();
+
+                            if(tries > 0){
+                                playRound();
+                            } else {
+                                checkHighScore();
+                                reset();
+                                playRound();
+                            }
                         }
                     });
 
-            loseBuild.setNegativeButton("Exit",
+            popupLose.setNegativeButton("Exit",
                     new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int id) {
                             //finish();
                         }
                     });
 
-            loseBuild.show();
+            popupLose.show();
+
 
         }
     }
@@ -215,6 +226,25 @@ public class GameFragment extends Fragment {
         for (int l = 0; l < numLetters; l++) {
             letters.getChildAt(l).setEnabled(false);
         }
+    }
+    public boolean checkHighScore(){
+        String[] stringArray = getResources().getStringArray(R.array.highscores);
+        ArrayList<String> stringArrayList = new ArrayList<>(Arrays.asList(stringArray));
+        for(int i = 0; i < stringArray.length; i++){
+            if(score > Integer.parseInt(stringArray[i])){
+                stringArrayList.add(i, ""+score);
+            }
+        }
+
+        return true;
+
+    }
+
+    public void reset(){
+        randWord = "";
+        randCategory = "";
+        score = 0;
+        tries = 3;
     }
 
 
