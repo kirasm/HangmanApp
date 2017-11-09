@@ -37,6 +37,9 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        fragment = new GameFragment();
+        changeFragment();
+
     }
 
     public void changeFragment() {

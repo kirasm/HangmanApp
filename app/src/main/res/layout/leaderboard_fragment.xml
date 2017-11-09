@@ -8,8 +8,22 @@
 
     <ListView
         android:id="@+id/leaderboard_listview"
-        android:layout_width="412dp"
-        android:layout_height="513dp"
+        android:layout_width="380dp"
+        android:layout_height="427dp"
         tools:layout_editor_absoluteX="0dp"
-        tools:layout_editor_absoluteY="0dp" />
+        tools:layout_editor_absoluteY="3dp" />
+
+    <Button
+        android:id="@+id/reset_btn"
+        android:layout_width="372dp"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="4dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:text="RESET SCORES"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/leaderboard_listview" />
 </android.support.constraint.ConstraintLayout>

@@ -6,6 +6,7 @@ import android.content.DialogInterface;
 import android.content.res.Resources;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.support.v4.content.res.TypedArrayUtils;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -16,8 +17,20 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 import java.util.Random;
 
 /**
@@ -46,6 +59,7 @@ public class GameFragment extends Fragment {
     private Resources res;
     private View v;
     private ViewGroup container;
+    private FileHandler fileHandler;
 
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -70,6 +84,10 @@ public class GameFragment extends Fragment {
         bodyParts[5] = (ImageView) v.findViewById(R.id.mistake6);
 
         playRound();
+
+        fileHandler = new FileHandler(container);
+
+
         return v;
     }
 
@@ -134,7 +152,7 @@ public class GameFragment extends Fragment {
 
         }
 
-        ltrAdapt = new LetterAdapter(container.getContext(),this);
+        ltrAdapt = new LetterAdapter(container.getContext(), this);
         letters.setAdapter(ltrAdapt);
     }
 
@@ -176,7 +194,7 @@ public class GameFragment extends Fragment {
                 popupWin.setNegativeButton("Exit",
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int id) {
-                             //   finish();
+                                //   finish();
                             }
                         });
 
@@ -198,10 +216,10 @@ public class GameFragment extends Fragment {
                     new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int id) {
 
-                            if(tries > 0){
+                            if (tries > 0) {
                                 playRound();
                             } else {
-                                checkHighScore();
+                                checkHighScore(score);
                                 reset();
                                 playRound();
                             }
@@ -227,26 +245,62 @@ public class GameFragment extends Fragment {
             letters.getChildAt(l).setEnabled(false);
         }
     }
-    public boolean checkHighScore(){
-        String[] stringArray = getResources().getStringArray(R.array.highscores);
-        ArrayList<String> stringArrayList = new ArrayList<>(Arrays.asList(stringArray));
-        for(int i = 0; i < stringArray.length; i++){
-            if(score > Integer.parseInt(stringArray[i])){
-                stringArrayList.add(i, ""+score);
-            }
-        }
 
-        return true;
+    public boolean checkHighScore(int score) {
+
+        Log.i("Other test", fileHandler.readHighscores().toString());
+        int[] scoreList = fileHandler.readHighscores();
+
+        int temp;
+
+
+
+        Arrays.sort(scoreList);
+
+
+        if(scoreList[scoreList.length-1] < score){
+            int[] newScoreList = new int[scoreList.length+1];
+            for (int i = 0; i < scoreList.length; i++) {
+                newScoreList[i] = scoreList[i];
+            }
+            newScoreList[newScoreList.length-1] = score;
+
+            for (int i = 0; i < newScoreList.length/2; i++)
+            {
+                temp = newScoreList[i];
+
+                newScoreList[i] = newScoreList[newScoreList.length-1-i];
+
+                newScoreList[newScoreList.length-1-i] = temp;
+            }
+
+            for(int a : newScoreList){
+                Log.i("After reverse", a+"");
+            }
+
+            fileHandler.writeHighscore(newScoreList);
+            displayHighscore(newScoreList);
+            return true;
+        } else {
+            return false;
+        }
 
     }
 
-    public void reset(){
+    public void displayHighscore(int[] scoreList){
+
+
+
+    }
+
+
+
+    public void reset() {
         randWord = "";
         randCategory = "";
         score = 0;
         tries = 3;
     }
-
 
 
 }
