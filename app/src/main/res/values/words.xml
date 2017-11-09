@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-	<!--<string-array name="brands">
+	<string-array name="brands">
 	    <item>SAMSUNG</item>
 		<item>WHIRLPOOL</item>
 		<item>BURGERKING</item>
@@ -13,28 +13,19 @@
 		<item>REFRIDGERATOR</item>
 		<item>KEYBOARD</item>
 		<item>HOUSE</item>
-	</string-array> -->
+	</string-array>
 	<string-array name="movies">
-		<!--<item>PULPFICTION</item>
+		<item>PULPFICTION</item>
 		<item>JURASSICPARK</item>
         <item>FULLMETALJACKET</item>
-        <item>SCHINDLERSLIST</item> -->
+        <item>SCHINDLERSLIST</item>
         <item>STARWARS</item>
 	</string-array>
 
 	<string-array name="categories">
-		<!--<item>brands</item>
-		<item>nouns</item> -->
+		<item>brands</item>
+		<item>nouns</item>
 		<item>movies</item>
 	</string-array>
-
-	<string-array name="highscores">
-		<item>10</item>
-		<item>90</item>
-		<item>50</item>
-		<item>30</item>
-	</string-array>
-
-
 
 </resources>

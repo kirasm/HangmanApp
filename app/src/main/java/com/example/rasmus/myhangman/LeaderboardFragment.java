@@ -6,6 +6,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.ListView;
 import android.widget.SearchView;
 
@@ -19,23 +20,37 @@ import java.util.Collections;
 
 public class LeaderboardFragment extends Fragment {
 
+    ArrayAdapter<String> aa;
+    ListView list;
+
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View v = inflater.inflate(R.layout.leaderboard_fragment, container, false);
 
-        ListView list = (ListView) v.findViewById(R.id.leaderboard_listview);
-        final String[] stringArray = getResources().getStringArray(R.array.highscores);
-        ArrayList<String> stringArrayList = new ArrayList<>(Arrays.asList(stringArray));
-        Collections.sort(stringArrayList);
-        Collections.reverse(stringArrayList);
-        String[] sortedArray = stringArrayList.toArray(new String[0]);
-        String[] sortedPresentableArray = new String[sortedArray.length];
+        final FileHandler fileHandler = new FileHandler(container);
+
+        Button reset = (Button) v.findViewById(R.id.reset_btn);
+        reset.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                fileHandler.resetScores();
+                list.setAdapter(aa);
+            }
+        });
+
+        list = (ListView) v.findViewById(R.id.leaderboard_listview);
+        int[] scoreList = fileHandler.readHighscores();
+
+        String[] stringArray = new String[scoreList.length];
+        String[] stringArrayPresentable = new String[scoreList.length];
+        for(int i = 0; i < scoreList.length;i++){
+            stringArray[i] = scoreList[i] + "";
+        }
         int i = 0;
-        for (String score : sortedArray) {
-            sortedPresentableArray[i] = i+1 + ":   " + score;
+        for (String score : stringArray) {
+            stringArrayPresentable[i] = i+1 + ":   " + score;
             i++;
         }
-        final ArrayAdapter<String> aa = new ArrayAdapter(container.getContext(), R.layout.list_item, R.id.text, sortedPresentableArray);
+        aa = new ArrayAdapter(container.getContext(), R.layout.list_item, R.id.text, stringArrayPresentable);
         list.setAdapter(aa);
 
         return v;
