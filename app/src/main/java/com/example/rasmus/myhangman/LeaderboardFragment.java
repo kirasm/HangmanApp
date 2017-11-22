@@ -10,6 +10,7 @@ import android.widget.Button;
 import android.widget.ListView;
 import android.widget.SearchView;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -39,6 +40,10 @@ public class LeaderboardFragment extends Fragment {
 
         list = (ListView) v.findViewById(R.id.leaderboard_listview);
         int[] scoreList = fileHandler.readHighscores();
+        if(scoreList == null){
+            fileHandler.resetScores();
+            scoreList = fileHandler.readHighscores();
+        }
 
         String[] stringArray = new String[scoreList.length];
         String[] stringArrayPresentable = new String[scoreList.length];

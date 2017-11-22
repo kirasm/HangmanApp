@@ -8,16 +8,12 @@ import android.widget.BaseAdapter;
 import android.widget.Button;
 
 public class LetterAdapter extends BaseAdapter {
-    private String[] letters;
+    private String[] letters = {"A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z","Æ","Ø","Å"};
     private LayoutInflater letterInf;
     private GameFragment g;
 
     public LetterAdapter(Context c, GameFragment g) {
         this.g = g;
-        letters=new String[26];
-        for (int i = 0; i < letters.length; i++) {
-            letters[i] = "" + (char)(i+'A');
-        }
         //specify the context in which we want to inflate the layout
         // will be passed from the main activity
         letterInf = LayoutInflater.from(c);
