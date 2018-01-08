@@ -8,12 +8,6 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
-import android.widget.SearchView;
-
-import java.lang.reflect.Array;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 
 /**
  * Created by Rasmus-Laptop on 06/11/2017.
@@ -55,7 +49,7 @@ public class LeaderboardFragment extends Fragment {
             stringArrayPresentable[i] = i+1 + ":   " + score;
             i++;
         }
-        aa = new ArrayAdapter(container.getContext(), R.layout.list_item, R.id.text, stringArrayPresentable);
+        aa = new ArrayAdapter(container.getContext(), R.layout.score_item, R.id.text2, stringArrayPresentable);
         list.setAdapter(aa);
 
         return v;

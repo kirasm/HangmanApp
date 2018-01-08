@@ -2,6 +2,7 @@ package com.example.rasmus.myhangman;
 
 import android.app.Fragment;
 import android.app.FragmentManager;
+import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -22,6 +23,7 @@ public class MainActivity extends AppCompatActivity {
 
         Button game_btn = (Button) findViewById(R.id.game_btn);
         Button leaderboard_btn = (Button) findViewById(R.id.leaderboard_btn);
+        Button settings_btn = (Button) findViewById(R.id.wordlist_btn);
 
         game_btn.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
@@ -33,6 +35,13 @@ public class MainActivity extends AppCompatActivity {
         leaderboard_btn.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 fragment = new LeaderboardFragment();
+                changeFragment();
+            }
+        });
+
+        settings_btn.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                fragment = new WordlistFragment();
                 changeFragment();
             }
         });

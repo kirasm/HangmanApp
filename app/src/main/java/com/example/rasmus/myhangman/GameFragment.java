@@ -1,9 +1,12 @@
 package com.example.rasmus.myhangman;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Fragment;
 import android.content.DialogInterface;
+import android.content.SharedPreferences;
 import android.content.res.Resources;
+import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -14,8 +17,15 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.github.jinatonic.confetti.ConfettiManager;
+import com.github.jinatonic.confetti.ConfettiSource;
+import com.github.jinatonic.confetti.ConfettoGenerator;
+import com.github.jinatonic.confetti.confetto.BitmapConfetto;
+import com.github.jinatonic.confetti.confetto.Confetto;
+
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Random;
 
 /**
@@ -45,9 +55,11 @@ public class GameFragment extends Fragment {
     private ViewGroup container;
     private FileHandler fileHandler;
     private ArrayList<String> drWordList = new ArrayList<>();
+    private SharedPreferences mySharedPreferences;
 
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+
         // Inflate the layout for this fragment
         v = inflater.inflate(R.layout.fragment_game, container, false);
         this.container = container;
@@ -71,14 +83,12 @@ public class GameFragment extends Fragment {
         fileHandler = new FileHandler(container);
         NetworkHandler n = new NetworkHandler();
 
-        Thread thread = new Thread(() -> {
-            try {
-                drWordList = n.hentOrdFraDr();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        });
-        thread.start();
+        mySharedPreferences = container.getContext().getSharedPreferences("WORDLIST", Activity.MODE_PRIVATE);
+
+        if(drWordList.isEmpty()){
+            drWordList = getWords(n);
+
+        }
 
         playRound();
 
@@ -89,9 +99,9 @@ public class GameFragment extends Fragment {
 
         ArrayList<String> usedWords = new ArrayList();
 
-        if(drWordList.size() != 0){
+        if (drWordList.size() != 0) {
             String[] returnedWords = new String[drWordList.size()];
-            for(int i = 0; i < drWordList.size(); i++){
+            for (int i = 0; i < drWordList.size(); i++) {
                 returnedWords[i] = drWordList.get(i).toUpperCase();
             }
             words = returnedWords;
@@ -101,8 +111,11 @@ public class GameFragment extends Fragment {
 
         boolean check = false;
         while (!check) {
-            randWord = words[rand.nextInt(words.length)];
-
+           if(mySharedPreferences.getString("0",null) == null){
+               randWord = words[rand.nextInt(words.length)];
+           } else {
+               randWord = mySharedPreferences.getString(rand.nextInt()+"", null);
+           }
             if (!usedWords.contains(randWord)) {
                 usedWords.add(randWord);
                 check = true;
@@ -165,26 +178,12 @@ public class GameFragment extends Fragment {
                 // Disable Buttons
                 disableBtns();
 
-                // Display Alert Dialog
-                AlertDialog.Builder popupWin = new AlertDialog.Builder(container.getContext());
-                popupWin.setTitle("There you go!");
-                popupWin.setMessage("You win!\n\nAnswer:\n\n" + randWord + "\n\nScore: " + score + "               " + "Tries left: " + tries);
-                popupWin.setPositiveButton("Next word",
-                        new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int id) {
-                                checkHighScore(score + 10);
-                                playRound();
-                            }
-                        });
+                checkHighScore(score + 10);
+                Bundle b = new Bundle();
+                b.putString("word",randWord);
+                b.putInt("score",score);
+                winLoseScreen(new WinningFragment(), b);
 
-                popupWin.setNegativeButton("Exit",
-                        new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int id) {
-                                //   finish();
-                            }
-                        });
-
-                popupWin.show();
             }
         } else if (currPart < numParts) {
             //some guesses left
@@ -195,32 +194,19 @@ public class GameFragment extends Fragment {
             //user has lost
             disableBtns();
             tries--;
-            // Display Alert Dialog
-            AlertDialog.Builder popupLose = new AlertDialog.Builder(container.getContext());
-            popupLose.setTitle("Not this time");
-            popupLose.setMessage("You lose!\n\nAnswer:\n\n" + randWord + "\n\nScore: " + score + "               " + "Tries left: " + tries);
-            popupLose.setPositiveButton("Try again",
-                    new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int id) {
+            Bundle b = new Bundle();
+            b.putString("word",randWord);
+            b.putInt("score",score);
 
-                            if (tries > 0) {
-                                playRound();
-                            } else {
-                                checkHighScore(score);
-                                reset();
-                                playRound();
-                            }
-                        }
-                    });
+            winLoseScreen(new LosingFragment(),b);
 
-            popupLose.setNegativeButton("Exit",
-                    new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int id) {
-                            //finish();
-                        }
-                    });
-
-            popupLose.show();
+            if (tries > 0) {
+                playRound();
+            } else {
+                checkHighScore(score);
+                reset();
+                playRound();
+            }
 
         }
     }
@@ -232,23 +218,43 @@ public class GameFragment extends Fragment {
         }
     }
 
+    public ArrayList getWords(NetworkHandler n) {
+
+        Thread thread = new Thread(() -> {
+            try {
+                drWordList = n.hentOrdFraDr();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
+        try {
+            thread.start();
+            thread.join();
+
+        } catch (Exception e) {
+
+        }
+        return drWordList;
+    }
+
+
     public boolean checkHighScore(int score) {
 
         int[] scoreList = fileHandler.readHighscores();
         int temp;
         Arrays.sort(scoreList);
 
-        if(scoreList[scoreList.length-1] < score){
-            int[] newScoreList = new int[scoreList.length+1];
+        if (scoreList[scoreList.length - 1] < score) {
+            int[] newScoreList = new int[scoreList.length + 1];
             for (int i = 0; i < scoreList.length; i++) {
                 newScoreList[i] = scoreList[i];
             }
-            newScoreList[newScoreList.length-1] = score;
+            newScoreList[newScoreList.length - 1] = score;
 
-            for (int i = 0; i < newScoreList.length/2; i++) {
+            for (int i = 0; i < newScoreList.length / 2; i++) {
                 temp = newScoreList[i];
-                newScoreList[i] = newScoreList[newScoreList.length-1-i];
-                newScoreList[newScoreList.length-1-i] = temp;
+                newScoreList[i] = newScoreList[newScoreList.length - 1 - i];
+                newScoreList[newScoreList.length - 1 - i] = temp;
             }
 
             fileHandler.writeHighscore(newScoreList);
@@ -264,6 +270,15 @@ public class GameFragment extends Fragment {
         randCategory = "";
         score = 0;
         tries = 3;
+    }
+
+    public void winLoseScreen(Fragment fragment, Bundle b) {
+
+        fragment.setArguments(b);
+        getFragmentManager().beginTransaction()
+                .replace(R.id.content_frame, fragment)
+                .addToBackStack("d")
+                .commit();
     }
 
 }
